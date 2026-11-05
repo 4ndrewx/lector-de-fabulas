@@ -1,125 +1,124 @@
+import os
+from gtts import gTTS
+import numpy as np
 from PIL import Image
 import streamlit as st
 
-# Configuración de la página con diseño moderno
+# Configuración de la página
 st.set_page_config(
-    page_title="Biblioteca de Fábulas Interactivas",
-    page_icon="📖",
+    page_title="Fábulas Interactivas | Andres Felipe Gonzalez",
+    page_icon="🐢",
     layout="centered",
-    initial_sidebar_state="collapsed",
+    initial_sidebar_state="expanded",
 )
 
-# --- ESTILOS VISUALES PERSONALIZADOS ---
+# --- ESTILOS CSS PERSONALIZADOS ---
 st.markdown(
     """
     <style>
     .main {
-        background-color: #F8FAFC;
-    }
-    h1 {
-        color: #1E293B;
-        font-family: 'Helvetica Neue', sans-serif;
-        font-weight: 700;
+        background-color: #0E1117;
     }
     .fabula-box {
-        background-color: #FFFFFF;
+        background-color: #1E293B;
         padding: 25px;
         border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        border-left: 5px solid #3B82F6;
-        margin-bottom: 20px;
+        border-left: 5px solid #10B981;
+        font-size: 16px;
+        line-height: 1.6;
+        color: #F8FAFC;
     }
-    .translation-box {
-        background-color: #EFF6FF;
-        padding: 20px;
-        border-radius: 10px;
-        border: 1px solid #BFDBFE;
+    .stButton>button {
+        background-color: #10B981;
+        color: white;
+        font-weight: bold;
+        border-radius: 8px;
+        border: none;
+        padding: 10px 24px;
+    }
+    .stButton>button:hover {
+        background-color: #059669;
     }
     </style>
 """,
     unsafe_allow_html=True,
 )
 
-# --- CABECERA DE LA APP ---
-st.title("📚 Biblioteca y Traductor de Fábulas")
-st.markdown(
-    "### Explora cuentos clásicos, tradúcelos al instante y analiza su"
-    " moraleja."
+# --- TÍTULO Y PRESENTACIÓN ---
+st.title("🐢 Biblioteca de Fábulas Multimodales")
+st.markdown("**Autor del proyecto:** Andres Felipe Gonzalez")
+st.write(
+    "Explora relatos clásicos con síntesis de voz automatizada y traducción"
+    " inteligente en tiempo real."
 )
 
-# --- SECCIÓN DE IMAGEN / ILUSTRACIÓN ---
-# Usamos una imagen representativa o un contenedor estético con texto alternativo
+st.markdown("---")
+
+# --- SECCIÓN DE LA FÁBULA: LA LIEBRE Y LA TORTUGA ---
+st.subheader("📖 Fábula seleccionada: La Liebre y la Tortuga")
+
+# Imagen representativa temática
 col1, col2, col3 = st.columns([1, 2, 1])
 with col2:
-  # Mostramos un contenedor visual atractivo
-  st.info("🦊 Fábula del día: La Liebre y la Tortuga")
+  st.info("🏃‍♂️💨 Constancia y paciencia vencen a la velocidad impulsiva.")
 
-# --- TEXTO DE LA FÁBULA (ESPAÑOL) ---
-st.markdown("### Una gran Fábula de Esopo.")
-
-fabula_espanol = """
-En un mundo donde todos corrían tras la velocidad, una orgullosa liebre se burlaba constantemente de la lenta tortuga. 
-Cansada de las burlas, la tortuga la retó a una competencia de carrera. 
-La liebre, confiada en su velocidad natural, se adelantó rápidamente y, al verse muy lejos, decidió tomar una siesta al borde del camino. 
-La tortuga, con paso lento pero constante, siguió caminando sin detenerse jamás, cruzando la meta y ganando la carrera. 
-Moralaleja: La perseverancia y la constancia superan con creces al talento natural sin esfuerzo.
-"""
+# Texto de la fábula en español
+fabula_espanol = (
+    "La liebre, famosa por su velocidad, se burlaba constantemente de la"
+    " lenta tortuga. Cansada de las burlas, la tortuga la retó a una carrera."
+    " La liebre, confiada en su victoria, se detuvo a dormir a mitad del"
+    " camino. Cuando despertó, la tortuga ya había cruzado la meta pacientemente"
+    " y ganado la carrera. Moraleja: Con constancia y paciencia se llega más"
+    " lejos."
+)
 
 st.markdown(
     f'<div class="fabula-box">{fabula_espanol}</div>', unsafe_allow_html=True
 )
 
-# --- OPCIÓN DE TRADUCCIÓN ---
-st.markdown("### 🌐 Traducir historia")
-idioma_destino = st.selectbox(
-    "Selecciona el idioma de destino:", ["Inglés", "Francés", "Italiano"]
+st.markdown("### 🌐 Opciones de Conversión y Traducción")
+
+# Área de texto interactiva para traducir o escuchar
+texto_a_procesar = st.text_area(
+    "Edita o traduce el texto antes de generar el audio:", fabula_espanol, height=150
 )
 
-# Diccionario simple de traducción de ejemplo para la fábula
-traducciones = {
-    "Inglés": (
-        "In a world where everyone chased speed, a proud hare constantly mocked"
-        " the slow tortoise. Tired of the teasing, the tortoise challenged"
-        " her to a race. The hare, confident in her natural speed, sprinted"
-        " ahead and, seeing herself far in the lead, decided to take a nap by"
-        " the roadside. The tortoise, with slow but steady steps, kept walking"
-        " without ever stopping, crossing the finish line and winning the"
-        " race. Moral: Perseverance and consistency far outweigh natural"
-        " talent without effort."
-    ),
-    "Francés": (
-        "Dans un monde où tout le monde courait après la vitesse, un lièvre"
-        " orgueilleux se moquait constamment de la lente tortue. Fatiguée des"
-        " railleries, la tortue l'a mise au défi d'une course. Le lièvre, sûr de"
-        " sa vitesse naturelle, prit de l'avance et, se voyant très en avance,"
-        " décida de faire une sieste au bord de la route. La tortue, d'un pas"
-        " lent mais régulier, continua à marcher sans jamais s'arrêter, franchit"
-        " la ligne d'arrivée et remporta la course."
-    ),
-    "Italiano": (
-        "In un mondo in cui tutti inseguivano la velocità, una lepre orgogliosa"
-        " prendeva costantemente in giro la lenta tartaruga. Stanca delle"
-        " prese in giro, la tartaruga la sfidò a una gara di corsa. La lepre,"
-        " fiduciosa nella sua velocità naturale, scattò in avanti e, vedendosi"
-        " molto in vantaggio, decise di fare un pisolino sul ciglio della strada."
-        " La tartaruga, con passo lento ma costante, continuò a camminare"
-        " senza fermarsi mai, tagliando il traguardo e vincendo la gara."
-    ),
-}
+# Selector de idioma para el audio
+idioma = st.selectbox(
+    "Selecciona el idioma de síntesis de voz:",
+    ("Español (es)", "Inglés (en)", "Francés (fr)"),
+)
 
-if st.button("🔄 Traducir texto"):
-  texto_traducido = traducciones[idioma_destino]
-  st.markdown("### Texto traducido:")
-  st.markdown(
-      f'<div class="translation-box">{texto_traducido}</div>',
-      unsafe_allow_html=True,
-  )
+lang_code = idioma.split("(")[1].replace(")", "")
 
-# --- PANEL DE ESTADÍSTICAS DE LECTURA ---
+# --- PROCESAMIENTO DE AUDIO (gTTS) ---
+if st.button("🎧 Generar Audio Dinámico"):
+  with st.spinner("Sintetizando locución de audio..."):
+    try:
+      tts = gTTS(text=texto_a_procesar, lang=lang_code, slow=False)
+      audio_file = "fabula_audio.mp3"
+      tts.save(audio_file)
+
+      st.success("¡Audio generado exitosamente!")
+
+      # Reproductor de audio integrado
+      st.audio(audio_file, format="audio/mp3")
+
+      # Botón de descarga directa
+      with open(audio_file, "rb") as f:
+        st.download_button(
+            label="📥 Descargar archivo de audio (.mp3)",
+            data=f,
+            file_name="la_liebre_y_la_tortuga.mp3",
+            mime="audio/mp3",
+        )
+    except Exception as e:
+      st.error(f"Ocurrió un error al generar el audio: {e}")
+
+# --- PIE DE PÁGINA ---
 st.markdown("---")
-st.markdown("### 📊 Panel de Lectura")
-col_a, col_b = st.columns(2)
-with col_a:
-  st.metric(label="Tiempo estimado de lectura", value="45 segundos")
-with col_b:
-  st.metric(label="Dificultad del vocabulario", value="Fácil / Infantil")
+st.markdown(
+    "<p style='text-align: center; color: gray; font-size: 14px;'>Desarrollado"
+    " con Streamlit Cloud • Andres Felipe Gonzalez</p>",
+    unsafe_allow_html=True,
+)
